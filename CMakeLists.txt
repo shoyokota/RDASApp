@@ -35,8 +35,8 @@ set( ENABLE_MPI ON CACHE BOOL "Compile with MPI" )
 option(BUILD_RDASBUNDLE "Build RDAS Bundle" ON)
 option(CLONE_JCSDADATA "Clone JCSDA test data repositories" OFF)
 option(WORKFLOW_TESTS "Include regional-workflow dependent tests" OFF)
-option(MPAS_DYCORE "Use MPAS" OFF)
-option(FV3_DYCORE "Use FV3" ON)
+option(MPAS_DYCORE "Use MPAS" ON)
+option(FV3_DYCORE "Use FV3" OFF)
 
 # Initialize bundle
 # -----------------
@@ -46,7 +46,7 @@ ecbuild_bundle_initialize()
 if(BUILD_RDASBUNDLE)
 
 # jedi-cmake
-  ecbuild_bundle( PROJECT jedicmake GIT "https://github.com/jcsda/jedi-cmake.git" TAG 1.4.0 RECURSIVE )
+  ecbuild_bundle( PROJECT jedicmake GIT "https://github.com/JCSDA-internal/jedi-cmake.git" TAG afb8655 RECURSIVE )
   include( jedicmake/cmake/Functions/git_functions.cmake )
 
 # ECMWF libraries
@@ -58,13 +58,13 @@ if(BUILD_RDASBUNDLE)
   option( ENABLE_LORENZ95_MODEL "Build LORENZ95 toy model" OFF )
   option( ENABLE_QG_MODEL "Build QG toy model" OFF )
 
-  ecbuild_bundle( PROJECT eckit GIT "https://github.com/ecmwf/eckit.git" TAG 1.16.0 )
-  ecbuild_bundle( PROJECT fckit GIT "https://github.com/ecmwf/fckit.git" TAG 0.9.2 )
+  ecbuild_bundle( PROJECT eckit GIT "https://github.com/ecmwf/eckit.git" TAG 1.18.2 )
+  ecbuild_bundle( PROJECT fckit GIT "https://github.com/ecmwf/fckit.git" TAG 0.9.5 )
   ecbuild_bundle( PROJECT atlas GIT "https://github.com/ecmwf/atlas.git" TAG 0.29.0 )
 
 # External (required) observation operators
   option("BUNDLE_SKIP_CRTM" "Don't build CRTM" "OFF") # Don't build crtm unless user passes -DBUNDLE_SKIP_CRTM=OFF
-  ecbuild_bundle( PROJECT crtm GIT "https://github.com/JCSDA/crtm.git"   TAG v2.4.1-jedi.1 )
+  ecbuild_bundle( PROJECT crtm GIT "https://github.com/JCSDA-internal/crtm.git"   TAG e630e33 )
 
 # Build GSI-B
   option(BUILD_GSIBEC "Build GSI-B" OFF)
@@ -73,13 +73,13 @@ if(BUILD_RDASBUNDLE)
   endif()
 
 # Core JEDI repositories
-  ecbuild_bundle( PROJECT oops  GIT "https://github.com/jcsda/oops.git"  BRANCH develop)
-  ecbuild_bundle( PROJECT vader GIT "https://github.com/jcsda/vader.git" BRANCH develop )
-  ecbuild_bundle( PROJECT saber GIT "https://github.com/jcsda/saber.git" BRANCH develop )
+  ecbuild_bundle( PROJECT oops  GIT "https://github.com/JCSDA-internal/oops.git"  TAG feature/mpas-jedi_2.1 )
+  #ecbuild_bundle( PROJECT vader GIT "https://github.com/jcsda/vader.git" BRANCH develop )
+  ecbuild_bundle( PROJECT saber GIT "https://github.com/JCSDA-internal/saber.git" TAG 1c35ddd )
   option(ENABLE_IODA_DATA "Obtain ioda test data from ioda-data repository (vs tarball)" ON)
-  ecbuild_bundle( PROJECT ioda  GIT "https://github.com/jcsda/ioda.git" BRANCH develop  )
+  ecbuild_bundle( PROJECT ioda  GIT "https://github.com/JCSDA-internal/ioda.git"  TAG feature/mpas-jedi_2.1 )
   option(ENABLE_UFO_DATA "Obtain ufo test data from ufo-data repository (vs tarball)" ON)
-  ecbuild_bundle( PROJECT ufo   GIT "https://github.com/jcsda/ufo.git" BRANCH develop )
+  ecbuild_bundle( PROJECT ufo   GIT "https://github.com/JCSDA-internal/ufo.git"   TAG feature/mpas-jedi_2.1 )
 
   if(FV3_DYCORE)
 # FMS and FV3 dynamical core
@@ -96,13 +96,13 @@ if(BUILD_RDASBUNDLE)
   if(MPAS_DYCORE)
     set(MPAS_DOUBLE_PRECISION "ON" CACHE STRING "MPAS-Model: Use double precision 64-bit Floating point.")
     set(MPAS_CORES init_atmosphere atmosphere CACHE STRING "MPAS-Model: cores to build.")
-    ecbuild_bundle( PROJECT MPAS GIT "https://github.com/JCSDA-internal/MPAS-Model.git" BRANCH release-stable UPDATE )
+    ecbuild_bundle( PROJECT MPAS GIT "https://github.com/JCSDA-internal/MPAS-Model.git" TAG jedi-2.0.0 )
     option(ENABLE_MPAS_JEDI_DATA "Obtain mpas-jedi test data from mpas-jedi-data repository (vs tarball)" ON)
-    ecbuild_bundle( PROJECT mpas-jedi GIT "https://github.com/JCSDA/mpas-jedi" BRANCH develop UPDATE )
+    ecbuild_bundle( PROJECT mpas-jedi GIT "https://github.com/JCSDA-internal/mpas-jedi" TAG fbfe003 )
   endif()
 
 # Build IODA converters
-  option(BUILD_IODA_CONVERTERS "Build IODA Converters" ON)
+  option(BUILD_IODA_CONVERTERS "Build IODA Converters" OFF)
   if(BUILD_IODA_CONVERTERS)
     ecbuild_bundle( PROJECT iodaconv GIT "https://github.com/JCSDA-internal/ioda-converters.git" BRANCH develop )
   endif()
@@ -121,7 +121,7 @@ if(CLONE_JCSDADATA)
   # When LOCAL_PATH_JEDI_TESTFILES is set to the directory of IODA test files stored
   # in a local directory, ioda-data repo will not be cloned
     if( NOT DEFINED ENV{LOCAL_PATH_JEDI_TESTFILES} AND NOT DEFINED GIT_TAG_FUNC )
-      ecbuild_bundle( PROJECT ioda-data GIT "https://github.com/JCSDA-internal/ioda-data.git" BRANCH develop )
+      ecbuild_bundle( PROJECT ioda-data GIT "https://github.com/JCSDA-internal/ioda-data.git" TAG a95dc2a )
 
       # If IODA's current branch is available in ioda-data repo, that branch will be checked out
       branch_checkout (REPO_DIR_NAME ioda-data
@@ -131,7 +131,7 @@ if(CLONE_JCSDADATA)
   # same procedure for ufo-data
     find_branch_name(REPO_DIR_NAME ufo)
     if( NOT DEFINED ENV{LOCAL_PATH_JEDI_TESTFILES} AND NOT DEFINED GIT_TAG_FUNC )
-      ecbuild_bundle( PROJECT ufo-data GIT "https://github.com/JCSDA-internal/ufo-data.git" BRANCH develop )
+      ecbuild_bundle( PROJECT ufo-data GIT "https://github.com/JCSDA-internal/ufo-data.git" TAG 6b9d571 )
 
       # If UFO's current branch is available in ioda-data repo, that branch will be checked out
       branch_checkout (REPO_DIR_NAME ufo-data
@@ -151,7 +151,7 @@ if(CLONE_JCSDADATA)
     endif()
 
     if(MPAS_DYCORE)
-      ecbuild_bundle( PROJECT mpas-jedi-data  GIT "https://github.com/jcsda-internal/mpas-jedi-data.git"  BRANCH develop UPDATE )
+      ecbuild_bundle( PROJECT mpas-jedi-data  GIT "https://github.com/JCSDA-internal/mpas-jedi-data.git" TAG 8b5ab19 )
     endif()
 
   endif(CLONE_JCSDADATA)

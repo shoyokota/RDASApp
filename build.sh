@@ -40,7 +40,7 @@ BUILD_VERBOSE="NO"
 CLONE_JCSDADATA="NO"
 CLEAN_BUILD="NO"
 BUILD_JCSDA="NO"
-DYCORE="FV3"
+DYCORE="MPAS"
 
 while getopts "p:t:c:m:hvdfa" opt; do
   case $opt in
@@ -112,7 +112,7 @@ if [[ $DYCORE == 'FV3' ]]; then
   builddirs="fv3-jedi iodaconv"
 elif [[ $DYCORE == 'MPAS' ]]; then
   CMAKE_OPTS+=" -DFV3_DYCORE=OFF -DMPAS_DYCORE=ON"
-  builddirs="mpas-jedi iodaconv"
+  builddirs="mpas-jedi"
 else
   echo "$DYCORE is not a valid dycore option. Valid options are FV3 or MPAS"
   exit 1
